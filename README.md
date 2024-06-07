@@ -80,3 +80,11 @@ const userId = searchParams.get("userId");
 ```
 
 ---
+
+## Reference of another Schema in a separate Schema
+
+```ts
+const CategorySchema = new Schema({
+     user: { type: Schema.Types.ObjectId, ref: "User" }
+})
+```
