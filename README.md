@@ -79,6 +79,7 @@ const { searchParams } = new URL(request.url);
 const userId = searchParams.get("userId");
 ```
 
+<<<<<<< HEAD
 ---
 
 ## Reference of another Schema in a separate Schema
@@ -88,3 +89,6 @@ const CategorySchema = new Schema({
      user: { type: Schema.Types.ObjectId, ref: "User" }
 })
 ```
+=======
+---
+>>>>>>> 10f05b77ce8f2b967c8944c1289670615f302107
