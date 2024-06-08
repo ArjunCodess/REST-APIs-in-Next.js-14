@@ -79,7 +79,6 @@ const { searchParams } = new URL(request.url);
 const userId = searchParams.get("userId");
 ```
 
-<<<<<<< HEAD
 ---
 
 ## Reference of another Schema in a separate Schema
@@ -89,6 +88,32 @@ const CategorySchema = new Schema({
      user: { type: Schema.Types.ObjectId, ref: "User" }
 })
 ```
-=======
+
 ---
->>>>>>> 10f05b77ce8f2b967c8944c1289670615f302107
+
+## Create a Schema which is dependent on another Schema
+
+```ts
+const user = await User.findById(userId);
+
+const newCategory = new Category({
+     title,
+     user: new Types.ObjectId(userId),
+})
+```
+
+---
+
+## Get data using Dynamic Link (Params)
+
+```ts
+export const PATCH = async (context: { params: any }) => {
+     const categoryId = context.params.category;
+}
+```
+
+## Get if the category is present in the database and is linked to the user
+
+```ts
+const category = await User.findOne({ _id: categoryId, user: userId });
+```
