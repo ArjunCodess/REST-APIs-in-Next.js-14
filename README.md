@@ -117,3 +117,13 @@ export const PATCH = async (context: { params: any }) => {
 ```ts
 const category = await User.findOne({ _id: categoryId, user: userId });
 ```
+
+## findByIdAndUpdate usage example
+
+```ts
+const updatedBlog = await Blog.findByIdAndUpdate(
+     blogId,
+     { title, description },
+     { new: true }
+);
+```
