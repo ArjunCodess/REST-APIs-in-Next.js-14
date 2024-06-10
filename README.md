@@ -112,11 +112,15 @@ export const PATCH = async (context: { params: any }) => {
 }
 ```
 
+---
+
 ## Get if the category is present in the database and is linked to the user
 
 ```ts
 const category = await User.findOne({ _id: categoryId, user: userId });
 ```
+
+---
 
 ## findByIdAndUpdate usage example
 
@@ -127,3 +131,55 @@ const updatedBlog = await Blog.findByIdAndUpdate(
      { new: true }
 );
 ```
+
+---
+
+## Implementing search functionality
+
+```ts
+const filter: any = {
+     user: new Types.ObjectId(userId),
+     category: new Types.ObjectId(categoryId),
+}
+
+// check if the keyword exists in the title or the description
+if (searchKeywords) {
+     filter.$or = [
+          {
+               title: { $regex: searchKeywords, $options: "i" },
+               // i => means search for both lowercase and uppercase
+          },
+          {
+               description: { $regex: searchKeywords, $options: "i" },
+          }
+     ]
+}
+```
+
+---
+
+## Use of createdAt method with $gte and $lte and other options
+
+```ts
+if (startDate && endDate) {
+     filter.createdAt = {
+          $gte: new Date(startDate), // greater than equal to start date
+          $lte: new Date(endDate), // less than equal to end date
+     }
+} else if (startDate) {
+     filter.createdAt = {
+          $gte: new Date(startDate), // greater than equal to start date
+     }
+} else if (endDate) {
+     filter.createdAt = {
+          $lte: new Date(endDate), // less than equal to end date
+     }
+}
+
+const blogs = await Blog.find(filter)
+     .sort({ createdAt: desc ? 'desc' : 'asc' })
+     .skip(skip)
+     .limit(limit);
+```
+
+---

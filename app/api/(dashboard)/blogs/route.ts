@@ -10,6 +10,13 @@ export const GET = async (request: Request) => {
           const { searchParams } = new URL(request.url);
           const userId = searchParams.get("userId");
           const categoryId = searchParams.get("categoryId");
+          const searchKeywords = searchParams.get("keywords") as string;
+          const startDate = searchParams.get("startDate");
+          const endDate = searchParams.get("endDate");
+          const desc = searchParams.get("desc");
+
+          const page = parseInt(searchParams.get("page") || "1");
+          const limit = parseInt(searchParams.get("limit") || "10");
 
           if (!userId || !Types.ObjectId.isValid(userId)) return new NextResponse(JSON.stringify({ message: "Invalid or missing userId" }), { status: 400 });
 
@@ -30,7 +37,40 @@ export const GET = async (request: Request) => {
                category: new Types.ObjectId(categoryId),
           }
 
-          const blogs = await Blog.find(filter);
+          // check if the keyword exists in the title or the description
+          if (searchKeywords) {
+               filter.$or = [
+                    {
+                         title: { $regex: searchKeywords, $options: "i" },
+                         // i => means search for both lowercase and uppercase
+                    },
+                    {
+                         description: { $regex: searchKeywords, $options: "i" },
+                    }
+               ]
+          }
+
+          if (startDate && endDate) {
+               filter.createdAt = {
+                    $gte: new Date(startDate), // greater than equal to start date
+                    $lte: new Date(endDate), // less than equal to end date
+               }
+          } else if (startDate) {
+               filter.createdAt = {
+                    $gte: new Date(startDate), // greater than equal to start date
+               }
+          } else if (endDate) {
+               filter.createdAt = {
+                    $lte: new Date(endDate), // less than equal to end date
+               }
+          }
+
+          const skip = (page - 1) * limit;
+
+          const blogs = await Blog.find(filter)
+               .sort({ createdAt: desc ? 'desc' : 'asc' })
+               .skip(skip)
+               .limit(limit);
 
           return new NextResponse(JSON.stringify({ blogs }), { status: 200 });
      }
@@ -72,10 +112,10 @@ export const POST = async (request: Request) => {
 
           await newBlog.save();
 
-          return new NextResponse(JSON.stringify({ message: "Blog is created",  blog: newBlog }), { status: 200 });
+          return new NextResponse(JSON.stringify({ message: "Blog is created", blog: newBlog }), { status: 200 });
      }
 
      catch (error: any) {
-          return new NextResponse("Error :: /api/(dashboard)/blogs/route.ts/GET : " + error.message, { status: 500 });
+          return new NextResponse("Error :: /api/(dashboard)/blogs/route.ts/POST : " + error.message, { status: 500 });
      }
 }
